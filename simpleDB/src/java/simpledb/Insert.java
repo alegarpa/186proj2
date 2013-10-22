@@ -1,5 +1,7 @@
 package simpledb;
 
+import java.io.IOException;
+
 /**
  * Inserts tuples read from the child operator into the tableid specified in the
  * constructor
@@ -7,7 +9,11 @@ package simpledb;
 public class Insert extends Operator {
 
     private static final long serialVersionUID = 1L;
-
+    private DbIterator child;
+    private int tableid;
+    private TransactionId tid;
+    private TupleDesc countTup;
+    private boolean isItInYet;
     /**
      * Constructor.
      * 
@@ -23,24 +29,40 @@ public class Insert extends Operator {
      */
     public Insert(TransactionId t,DbIterator child, int tableid)
             throws DbException {
-        // some code goes here
+        	this.tid = t;
+        	this.child = child;
+        	this.tableid = tableid;
+        	Type[] type = new Type[1];
+        	type[0] = Type.INT_TYPE;
+        	String[] name = new String[1];
+        	name[0] = "InsertCount";
+        	this.countTup = new TupleDesc(type, name);
+        	
+        	
     }
 
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        return this.countTup;
     }
 
     public void open() throws DbException, TransactionAbortedException {
         // some code goes here
+    	super.open();
+    	child.open();
+    	this.isItInYet = false;
     }
 
     public void close() {
         // some code goes here
+    	super.close();
+    	child.close();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
         // some code goes here
+    	
+    	child.rewind();
     }
 
     /**
@@ -57,18 +79,38 @@ public class Insert extends Operator {
      * @see BufferPool#insertTuple
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
-        // some code goes here
-        return null;
+    	if(this.isItInYet){
+    		return null;
+    	}
+    	int count = 0;
+    	BufferPool goFetch = Database.getBufferPool();
+    	Tuple nextTup;
+    	while(child.hasNext()){
+    		
+    		nextTup = child.next();
+    		try{
+    		goFetch.insertTuple(tid, tableid, nextTup);
+    		}
+    		catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    		count++;
+    	}
+    	Field f = new IntField(count);
+    	Tuple insertCount = new Tuple(countTup);
+    	insertCount.setField(0, f);
+        return insertCount;
     }
 
     @Override
     public DbIterator[] getChildren() {
         // some code goes here
-        return null;
+        return new DbIterator[] { this.child };
     }
 
     @Override
     public void setChildren(DbIterator[] children) {
-        // some code goes here
+       this.child = children[0];
+    	
     }
 }

@@ -1,5 +1,7 @@
 package simpledb;
 
+import java.io.IOException;
+
 /**
  * The delete operator. Delete reads tuples from its child operator and removes
  * them from the table they belong to.
@@ -7,6 +9,10 @@ package simpledb;
 public class Delete extends Operator {
 
     private static final long serialVersionUID = 1L;
+    private DbIterator child;
+    private TransactionId tid;
+    private TupleDesc countTup;
+    private boolean isItInYet;
 
     /**
      * Constructor specifying the transaction that this delete belongs to as
@@ -19,23 +25,31 @@ public class Delete extends Operator {
      */
     public Delete(TransactionId t, DbIterator child) {
         // some code goes here
+    	this.tid = t;
+    	this.child = child;
+    	Type[] type = new Type[1];
+       	type[0] = Type.INT_TYPE;
+    	String[] name = new String[1];
+    	name[0] = "DeleteCount";
+    	this.countTup = new TupleDesc(type, name);
     }
 
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        return this.countTup;
     }
 
     public void open() throws DbException, TransactionAbortedException {
-        // some code goes here
+        child.open();
+        this.isItInYet = false;
     }
 
     public void close() {
-        // some code goes here
+        child.close();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
-        // some code goes here
+        child.rewind();
     }
 
     /**
@@ -48,19 +62,33 @@ public class Delete extends Operator {
      * @see BufferPool#deleteTuple
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
-        // some code goes here
-        return null;
+    	if(this.isItInYet){
+    		return null;
+    	}
+    	int count = 0;
+    	BufferPool goFetch = Database.getBufferPool();
+    	Tuple nextTup;
+    	while(child.hasNext()){
+    		nextTup = child.next();
+    		goFetch.deleteTuple(tid, nextTup);
+    		
+    		count++;
+    	}
+    	Field f = new IntField(count);
+    	Tuple deleteCount = new Tuple(countTup);
+    	deleteCount.setField(0, f);
+        return deleteCount;
     }
-
+    
     @Override
     public DbIterator[] getChildren() {
         // some code goes here
-        return null;
+        return new DbIterator[] {this.child};
     }
 
     @Override
     public void setChildren(DbIterator[] children) {
-        // some code goes here
+        this.child = children[0];
     }
 
 }

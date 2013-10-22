@@ -88,17 +88,8 @@ public class HeapFile implements DbFile {
 
     // see DbFile.java for javadocs
     public void writePage(Page page) throws IOException {
-    	int pageNum = page.getId().pageNumber();
-    	//array of data I want
-    	byte[] writeData = new byte[BufferPool.PAGE_SIZE];
-    	writeData = page.getPageData();
-    	//we just need a new file to write to, and that should be fine
-    	//I hope... - _ -...
-    	RandomAccessFile f = new RandomAccessFile(file, "rw");
-    	f.seek(pageNum * BufferPool.PAGE_SIZE);
-    	f.write(writeData, 0, BufferPool.PAGE_SIZE);
-    	f.close();
-    	page.markDirty(false, null);
+        // some code goes here
+        // not necessary for proj1
     }
 
     /**

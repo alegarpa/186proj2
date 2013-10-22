@@ -27,11 +27,10 @@ public class HeapFileIterator implements DbFileIterator {
 	}
 	@Override
 	public void open() throws DbException, TransactionAbortedException {
-		
 		this.current_page = 0;
 		this.curr_HPage = (HeapPage)this.readPage(this.current_page);
 		this.Tuple_it = curr_HPage.iterator();
-		
+
 	}
 
 	@Override
