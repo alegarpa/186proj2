@@ -26,7 +26,7 @@ public class BufferPool {
      *
      * @param numPages maximum number of pages in this buffer pool.
      */
-    private Page[] pages;
+
     private int numPages;
     private HashMap<Integer,Page> bufferPool;
     private LinkedList<Integer> recentPages;
@@ -34,7 +34,6 @@ public class BufferPool {
 
     public BufferPool(int numPages) {
         // some code goes here
-	pages = new Page[numPages];
 	this.numPages=  numPages;
 	bufferPool = new HashMap<Integer,Page>();
 	recentPages = new LinkedList<Integer>();
@@ -76,21 +75,9 @@ public class BufferPool {
     	recentPages.remove(currindex);
     	recentPages.addFirst(pidHash);
     	}
-    	int pos = -1;
-    	int index = 0;
-        for(Page p: pages){
-	    if(p == null && pos == -1)
-		pos = index;
-	    if(p != null && p.getId().equals(pid))
-		return p;
-	    index++;
-	}
-	if(pos == -1)
-	    throw new DbException("blarg");
-	
-	pages[pos] = db.readPage(pid);
-	
-	return pages[pos];
+	Page pgtoGet = bufferPool.get(pidHash);
+	return pgtoGet;
+    	
     }
 
     /**
