@@ -40,11 +40,13 @@ public class Delete extends Operator {
     }
 
     public void open() throws DbException, TransactionAbortedException {
+    	super.open();
         child.open();
         this.isItInYet = false;
     }
 
     public void close() {
+    	super.close();
         child.close();
     }
 
@@ -65,6 +67,7 @@ public class Delete extends Operator {
     	if(this.isItInYet){
     		return null;
     	}
+    	this.isItInYet = true;
     	int count = 0;
     	BufferPool goFetch = Database.getBufferPool();
     	Tuple nextTup;
@@ -88,7 +91,10 @@ public class Delete extends Operator {
 
     @Override
     public void setChildren(DbIterator[] children) {
-        this.child = children[0];
+        if (this.child != children[0])
+        {
+            this.child = children[0];
+        }
     }
 
 }

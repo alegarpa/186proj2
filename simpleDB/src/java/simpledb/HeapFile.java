@@ -180,6 +180,9 @@ public class HeapFile implements DbFile {
                 pageNumber++;
                 HeapPageId id = new HeapPageId(getId(), pageNumber);
                 HeapPage page = (HeapPage)Database.getBufferPool().getPage(tid, id, Permissions.READ_ONLY);
+                if(page.getNumEmptySlots() == page.numSlots){
+                	return false;
+                }
                 currentPageIterator = page.iterator();
                 return true;
          }

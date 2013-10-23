@@ -41,11 +41,13 @@ public class Filter extends Operator {
             TransactionAbortedException {
         // some code goes here
     	super.open();
+    	child.open();
     }
 
     public void close() {
         // some code goes here
     	super.close();
+    	child.close();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
@@ -83,7 +85,11 @@ public class Filter extends Operator {
     @Override
     public void setChildren(DbIterator[] children) {
         // some code goes here
-    	this.child = children[0];
+        if (this.child != children[0])
+        {
+            this.child = children[0];
+        }
     }
+
 
 }

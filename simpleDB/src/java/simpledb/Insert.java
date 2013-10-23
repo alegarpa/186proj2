@@ -85,6 +85,8 @@ public class Insert extends Operator {
     	int count = 0;
     	BufferPool goFetch = Database.getBufferPool();
     	Tuple nextTup;
+    	//I DIDN'T CHECK FOR MOTHER F DUPLICATES OH MAH GAWD THIS IS BS
+    	this.isItInYet = true;
     	while(child.hasNext()){
     		
     		nextTup = child.next();
